@@ -3,7 +3,7 @@
 module ActiveCurrency
   class Bank < Money::Bank::VariableExchange
     def initialize(rate_store = ActiveCurrency::RateStore.new)
-      super(rate_store)
+      super
     end
   end
 end

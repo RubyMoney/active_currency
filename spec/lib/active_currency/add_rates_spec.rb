@@ -152,10 +152,10 @@ RSpec.describe ActiveCurrency::AddRates do
           .with("CAD", "EUR", (1 / 1.12) * 1.2)
         expect(store)
           .to have_received(:add_rate)
-          .with("CAD", "USD", a_value_within(0.0000001).of((1.42 / 1.12)))
+          .with("CAD", "USD", a_value_within(0.0000001).of(1.42 / 1.12))
         expect(store)
           .to have_received(:add_rate)
-          .with("USD", "CAD", a_value_within(0.0000001).of((1.12 / 1.42)))
+          .with("USD", "CAD", a_value_within(0.0000001).of(1.12 / 1.42))
       end
     end
   end
