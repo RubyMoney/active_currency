@@ -1,4 +1,4 @@
-require:
+plugins:
   - rubocop-rails
   - rubocop-rspec
 
@@ -10,17 +10,27 @@ AllCops:
   NewCops: enable
   Exclude:
     - spec/dummy/db/schema.rb
+    - spec/dummy/bin/setup
+    - spec/dummy/bin/update
     - bin/rake
+
+# Gemspec
 
 Gemspec/RequiredRubyVersion:
   Enabled: false
 
+# Layout
+
 Layout/LineLength:
   Max: 80
+
+# Metrics
 
 Metrics/BlockLength:
   Exclude:
     - spec/**/*
+
+# Style
 
 Style/MixinUsage:
   Exclude:
@@ -28,6 +38,8 @@ Style/MixinUsage:
 
 Style/Documentation:
   Enabled: false
+
+# Rails
 
 Rails:
   Enabled: true
@@ -37,6 +49,8 @@ Rails/FilePath:
 
 Rails/ApplicationRecord:
   Enabled: false
+
+# RSpec
 
 RSpec/ExampleLength:
   Max: 20

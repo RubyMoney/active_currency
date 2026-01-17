@@ -34,39 +34,4 @@ Gem::Specification.new do |s|
   # API to get the currencies.
   # >= 1.3.1 to prevent HTTPS error.
   s.add_dependency "eu_central_bank", ">= 1.3.1"
-
-  # Development dependencies
-
-  # API to get the currencies.
-  s.add_development_dependency "money-open-exchange-rates"
-
-  # DB for the dummy app.
-  s.add_development_dependency "sqlite3"
-
-  # Unit testing.
-  s.add_development_dependency "rspec"
-
-  # Unit testing with rails.
-  s.add_development_dependency "rspec-rails"
-
-  # Spec formatter for GitHub Actions.
-  s.add_development_dependency "rspec-github"
-
-  # Formatter for unit testing that Circle-CI enjoys.
-  s.add_development_dependency "rspec_junit_formatter"
-
-  # Travel through time in specs.
-  s.add_development_dependency "timecop"
-
-  # Useful for `binding.pry` in development.
-  s.add_development_dependency "pry"
-
-  # Style guide.
-  s.add_development_dependency "rubocop"
-
-  # Style guide for Rails.
-  s.add_development_dependency "rubocop-rails"
-
-  # Style guide for RSpec.
-  s.add_development_dependency "rubocop-rspec"
 end

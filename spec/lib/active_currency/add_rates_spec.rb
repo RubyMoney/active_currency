@@ -6,116 +6,168 @@ require "eu_central_bank"
 RSpec.describe ActiveCurrency::AddRates do
   let(:currencies) { %w[EUR USD CAD] }
 
-  shared_examples "with a mocked EuCentralBank" do
-    # Mock bank
-    let(:bank) { instance_double EuCentralBank, update_rates: nil }
-    before do
-      allow(EuCentralBank).to receive(:new) { bank }
-      allow(bank).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
-      allow(bank).to receive(:get_rate).with("USD", "EUR").and_return(nil)
-      allow(bank).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
-      allow(bank).to receive(:get_rate).with("CAD", "EUR").and_return(nil)
-      allow(bank).to receive(:get_rate).with("CAD", "USD").and_return(nil)
-      allow(bank).to receive(:get_rate).with("USD", "CAD").and_return(nil)
-    end
-
-    it "updates the rates" do
-      add_rate
-
-      expect(bank).to have_received(:update_rates)
-    end
-  end
-
-  shared_examples "with a custom bank" do
-    # Mock bank
-    let(:bank) { double :bank, update_rates: nil }
-
-    before do
-      allow(bank).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
-      allow(bank).to receive(:get_rate).with("USD", "EUR") { 1 / 1.42 }
-      allow(bank).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
-      allow(bank).to receive(:get_rate).with("CAD", "EUR") { 1 / 1.12 }
-      allow(bank).to receive(:get_rate).with("CAD", "USD").and_return(nil)
-      allow(bank).to receive(:get_rate).with("USD", "CAD").and_return(nil)
-    end
-
-    it "updates the rates" do
-      add_rate
-
-      expect(bank).to have_received(:update_rates)
-    end
-  end
-
-  shared_examples "sets the rates" do
-    # Mock store
-    let(:store) { instance_double ActiveCurrency::RateStore, add_rate: nil }
-    before do
-      allow(ActiveCurrency::RateStore).to receive(:new) { store }
-    end
-
-    it "calls add_rate with the correct arguments" do
-      add_rate
-
-      expect(store).to have_received(:add_rate).exactly(6).times
-      expect(store).to have_received(:add_rate).with("EUR", "USD", 1.42)
-      expect(store).to have_received(:add_rate).with("USD", "EUR", 1 / 1.42)
-      expect(store).to have_received(:add_rate).with("EUR", "CAD", 1.12)
-      expect(store).to have_received(:add_rate).with("CAD", "EUR", 1 / 1.12)
-      expect(store)
-        .to have_received(:add_rate)
-        .with("CAD", "USD", a_value_within(0.0000001).of(1.42 / 1.12))
-      expect(store)
-        .to have_received(:add_rate)
-        .with("USD", "CAD", a_value_within(0.0000001).of(1.12 / 1.42))
-    end
-  end
-
   describe ".call" do
     let(:add_rate) { described_class.call(currencies: currencies) }
 
+    # Mock store and bank
+    let(:store) { instance_double ActiveCurrency::RateStore, add_rate: nil }
+    let(:bank) do
+      instance_double EuCentralBank, update_rates: nil, get_rate: nil
+    end
+
+    before do
+      allow(ActiveCurrency::RateStore).to receive(:new).and_return(store)
+      allow(EuCentralBank).to receive(:new).and_return(bank)
+    end
+
     context "with the default bank" do
-      include_examples "with a mocked EuCentralBank"
-      include_examples "sets the rates"
+      before do
+        allow(bank).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
+        allow(bank).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
+      end
+
+      it "calls add_rate with the correct arguments" do
+        add_rate
+
+        expect(bank).to have_received(:update_rates)
+        expect(store).to have_received(:add_rate).exactly(6).times
+        expect(store).to have_received(:add_rate).with("EUR", "USD", 1.42)
+        expect(store).to have_received(:add_rate).with("USD", "EUR", 1 / 1.42)
+        expect(store).to have_received(:add_rate).with("EUR", "CAD", 1.12)
+        expect(store).to have_received(:add_rate).with("CAD", "EUR", 1 / 1.12)
+        expect(store)
+          .to have_received(:add_rate)
+          .with("CAD", "USD", a_value_within(0.0000001).of(1.42 / 1.12))
+        expect(store)
+          .to have_received(:add_rate)
+          .with("USD", "CAD", a_value_within(0.0000001).of(1.12 / 1.42))
+      end
     end
 
     context "when given a custom bank" do
       let(:add_rate) do
-        described_class.call(currencies: currencies, bank: bank)
+        described_class.call(currencies: currencies, bank: bank_b)
       end
 
-      include_examples "with a custom bank"
-      include_examples "sets the rates"
+      let(:bank_b) do
+        instance_double EuCentralBank, update_rates: nil, get_rate: nil
+      end
+
+      before do
+        allow(bank_b).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
+        allow(bank_b).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
+      end
+
+      it "calls add_rate with the correct arguments" do
+        add_rate
+
+        expect(EuCentralBank).not_to have_received(:new)
+
+        expect(bank_b).to have_received(:update_rates)
+        expect(store).to have_received(:add_rate).exactly(6).times
+        expect(store).to have_received(:add_rate).with("EUR", "USD", 1.42)
+        expect(store).to have_received(:add_rate).with("USD", "EUR", 1 / 1.42)
+        expect(store).to have_received(:add_rate).with("EUR", "CAD", 1.12)
+        expect(store).to have_received(:add_rate).with("CAD", "EUR", 1 / 1.12)
+        expect(store)
+          .to have_received(:add_rate)
+          .with("CAD", "USD", a_value_within(0.0000001).of(1.42 / 1.12))
+        expect(store)
+          .to have_received(:add_rate)
+          .with("USD", "CAD", a_value_within(0.0000001).of(1.12 / 1.42))
+      end
     end
 
     context "when given a variety of currency formats" do
-      let(:currencies) { ["eur", :USD, Money::Currency.new("CAD")] }
+      let(:add_rate) do
+        described_class.call(
+          currencies: ["eur", :USD, Money::Currency.new("CAD")],
+        )
+      end
 
-      include_examples "with a mocked EuCentralBank"
-      include_examples "sets the rates"
+      before do
+        allow(bank).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
+        allow(bank).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
+      end
+
+      it "calls add_rate with the correct arguments" do
+        add_rate
+
+        expect(bank).to have_received(:update_rates)
+        expect(store).to have_received(:add_rate).exactly(6).times
+        expect(store).to have_received(:add_rate).with("EUR", "USD", 1.42)
+        expect(store).to have_received(:add_rate).with("USD", "EUR", 1 / 1.42)
+        expect(store).to have_received(:add_rate).with("EUR", "CAD", 1.12)
+        expect(store).to have_received(:add_rate).with("CAD", "EUR", 1 / 1.12)
+        expect(store)
+          .to have_received(:add_rate)
+          .with("CAD", "USD", a_value_within(0.0000001).of(1.42 / 1.12))
+        expect(store)
+          .to have_received(:add_rate)
+          .with("USD", "CAD", a_value_within(0.0000001).of(1.12 / 1.42))
+      end
     end
 
     context "with the deprecated array first currency" do
       let(:add_rate) { described_class.call(currencies) }
 
       context "with the default bank" do
-        include_examples "with a mocked EuCentralBank"
-        include_examples "sets the rates"
+        before do
+          allow(bank).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
+          allow(bank).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
+        end
+
+        it "calls add_rate with the correct arguments" do
+          add_rate
+
+          expect(bank).to have_received(:update_rates)
+          expect(store).to have_received(:add_rate).exactly(6).times
+          expect(store).to have_received(:add_rate).with("EUR", "USD", 1.42)
+          expect(store).to have_received(:add_rate).with("USD", "EUR", 1 / 1.42)
+          expect(store).to have_received(:add_rate).with("EUR", "CAD", 1.12)
+          expect(store).to have_received(:add_rate).with("CAD", "EUR", 1 / 1.12)
+          expect(store)
+            .to have_received(:add_rate)
+            .with("CAD", "USD", a_value_within(0.0000001).of(1.42 / 1.12))
+          expect(store)
+            .to have_received(:add_rate)
+            .with("USD", "CAD", a_value_within(0.0000001).of(1.12 / 1.42))
+        end
       end
 
       context "when given a custom bank" do
-        let(:add_rate) do
-          described_class.call(currencies, bank: bank)
+        let(:add_rate) { described_class.call(currencies, bank: bank_b) }
+        let(:bank_b) { double :bank, update_rates: nil, get_rate: nil }
+
+        before do
+          allow(bank_b).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
+          allow(bank_b).to receive(:get_rate).with("USD", "EUR") { 1 / 1.42 }
+          allow(bank_b).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
+          allow(bank_b).to receive(:get_rate).with("CAD", "EUR") { 1 / 1.12 }
+          allow(ActiveCurrency::RateStore).to receive(:new) { store }
+          allow(ActiveCurrency::RateStore).to receive(:new) { store }
         end
 
-        include_examples "with a custom bank"
-        include_examples "sets the rates"
+        it "calls add_rate with the correct arguments" do
+          add_rate
+
+          expect(bank_b).to have_received(:update_rates)
+          expect(store).to have_received(:add_rate).exactly(6).times
+          expect(store).to have_received(:add_rate).with("EUR", "USD", 1.42)
+          expect(store).to have_received(:add_rate).with("USD", "EUR", 1 / 1.42)
+          expect(store).to have_received(:add_rate).with("EUR", "CAD", 1.12)
+          expect(store).to have_received(:add_rate).with("CAD", "EUR", 1 / 1.12)
+          expect(store)
+            .to have_received(:add_rate)
+            .with("CAD", "USD", a_value_within(0.0000001).of(1.42 / 1.12))
+          expect(store)
+            .to have_received(:add_rate)
+            .with("USD", "CAD", a_value_within(0.0000001).of(1.12 / 1.42))
+        end
       end
     end
 
     context "with a custom multiplier" do
-      # Mock store
-      let(:store) { instance_double ActiveCurrency::RateStore, add_rate: nil }
-
       let(:multiplier) do
         {
           %w[USD EUR] => 1.1,
@@ -128,14 +180,14 @@ RSpec.describe ActiveCurrency::AddRates do
           .to receive(:multiplier)
           .and_return(multiplier)
 
-        allow(ActiveCurrency::RateStore).to receive(:new) { store }
+        allow(bank).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
+        allow(bank).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
       end
-
-      include_examples "with a mocked EuCentralBank"
 
       it "calls add_rate with increased values" do
         add_rate
 
+        expect(bank).to have_received(:update_rates)
         expect(store).to have_received(:add_rate).exactly(6).times
 
         expect(store)
@@ -152,10 +204,10 @@ RSpec.describe ActiveCurrency::AddRates do
           .with("CAD", "EUR", (1 / 1.12) * 1.2)
         expect(store)
           .to have_received(:add_rate)
-          .with("CAD", "USD", a_value_within(0.0000001).of((1.42 / 1.12)))
+          .with("CAD", "USD", a_value_within(0.0000001).of(1.42 / 1.12))
         expect(store)
           .to have_received(:add_rate)
-          .with("USD", "CAD", a_value_within(0.0000001).of((1.12 / 1.42)))
+          .with("USD", "CAD", a_value_within(0.0000001).of(1.12 / 1.42))
       end
     end
   end
