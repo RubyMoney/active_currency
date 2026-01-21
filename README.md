@@ -169,10 +169,10 @@ bin/rake release
 The gem is available as open source under the terms of the [MIT License].
 
 [money-rails]: https://github.com/RubyMoney/money-rails
-[sidekiq-scheduler]: https://github.com/Moove-it/sidekiq-scheduler
+[sidekiq-scheduler]: https://github.com/sidekiq-scheduler/sidekiq-scheduler
 [whenever]: https://github.com/javan/whenever
 [active_scheduler]: https://github.com/JustinAiken/active_scheduler
 [eu_central_bank]: https://github.com/RubyMoney/eu_central_bank
 [money-open-exchange-rates]: https://github.com/spk/money-open-exchange-rates
 [on GitHub]: https://github.com/RubyMoney/active_currency
-[MIT License]: http://opensource.org/licenses/MIT
+[MIT License]: https://opensource.org/license/MIT
