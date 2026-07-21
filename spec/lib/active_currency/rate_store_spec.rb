@@ -104,4 +104,18 @@ RSpec.describe ActiveCurrency::RateStore do
       end
     end
   end
+
+  describe "#marshal_dump" do
+    it "dumps the class so the store can be rebuilt on load" do
+      expect(store.marshal_dump).to eq([described_class])
+    end
+
+    it "lets a bank backed by the store round-trip through Marshal" do
+      bank = Money::Bank::VariableExchange.new(store)
+
+      loaded = Marshal.load(Marshal.dump(bank))
+
+      expect(loaded.store).to be_a(described_class)
+    end
+  end
 end
