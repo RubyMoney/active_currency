@@ -9,8 +9,10 @@ jobs:
     strategy:
       matrix:
         gemfile:
-          - Gemfile-rails6.1
-          - Gemfile-rails7.0
+          - Gemfile-rails7.1
+          - Gemfile-rails7.2
+          - Gemfile-rails8.0
+          - Gemfile-rails8.1
 
     env:
       RAILS_ENV: test

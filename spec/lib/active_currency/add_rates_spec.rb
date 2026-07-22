@@ -81,7 +81,7 @@ RSpec.describe ActiveCurrency::AddRates do
     context "when given a variety of currency formats" do
       let(:add_rate) do
         described_class.call(
-          currencies: ["eur", :USD, Money::Currency.new("CAD")],
+          currencies: ["eur", :USD, Money::Currency.new("CAD")]
         )
       end
 
@@ -140,10 +140,22 @@ RSpec.describe ActiveCurrency::AddRates do
         let(:bank_b) { double :bank, update_rates: nil, get_rate: nil }
 
         before do
-          allow(bank_b).to receive(:get_rate).with("EUR", "USD").and_return(1.42)
-          allow(bank_b).to receive(:get_rate).with("USD", "EUR") { 1 / 1.42 }
-          allow(bank_b).to receive(:get_rate).with("EUR", "CAD").and_return(1.12)
-          allow(bank_b).to receive(:get_rate).with("CAD", "EUR") { 1 / 1.12 }
+          allow(bank_b)
+            .to receive(:get_rate)
+            .with("EUR", "USD")
+            .and_return(1.42)
+          allow(bank_b)
+            .to receive(:get_rate)
+            .with("USD", "EUR")
+            .and_return(1 / 1.42)
+          allow(bank_b)
+            .to receive(:get_rate)
+            .with("EUR", "CAD")
+            .and_return(1.12)
+          allow(bank_b)
+            .to receive(:get_rate)
+            .with("CAD", "EUR")
+            .and_return(1 / 1.12)
           allow(ActiveCurrency::RateStore).to receive(:new) { store }
           allow(ActiveCurrency::RateStore).to receive(:new) { store }
         end
