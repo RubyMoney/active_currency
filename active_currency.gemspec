@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.version = ActiveCurrency::VERSION
   s.authors = ["Sunny Ripert"]
   s.email = ["sunny@sunfox.org"]
-  s.homepage = "https://github.com/sunny/active_currency"
+  s.homepage = "https://github.com/RubyMoney/active_currency"
   s.summary = "Rails plugin to store your currency regularly"
   s.description = "Store your currency."
   s.license = "MIT"
