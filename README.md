@@ -156,8 +156,10 @@ Update `CHANGELOG.md`, update version in `lib/active_currency/version.rb`.
 Then:
 
 ```sh
-BUNDLE_GEMFILE=Gemfile-rails6.1 bundle update
-BUNDLE_GEMFILE=Gemfile-rails7.0 bundle update
+BUNDLE_GEMFILE=Gemfile-rails7.1 bundle update --all
+BUNDLE_GEMFILE=Gemfile-rails7.2 bundle update --all
+BUNDLE_GEMFILE=Gemfile-rails8.0 bundle update --all
+BUNDLE_GEMFILE=Gemfile-rails8.1 bundle update --all
 
 git add CHANGELOG.md lib/active_currency/version.rb Gemfile-rails*
 git commit -m v`ruby -r./lib/active_currency/version <<< 'puts ActiveCurrency::VERSION'`

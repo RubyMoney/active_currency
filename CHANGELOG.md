@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning].
 
 ## Unreleased
 
+Changes:
+- Drop support for Rails < 7.0.
+
 ## v1.4.1
 
 Fix:

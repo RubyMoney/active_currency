@@ -8,6 +8,7 @@ AllCops:
   DisplayStyleGuide: true
   ExtraDetails: true
   NewCops: enable
+  SuggestExtensions: false
   Exclude:
     - spec/dummy/db/schema.rb
     - spec/dummy/bin/setup
@@ -53,7 +54,7 @@ Rails/ApplicationRecord:
 # RSpec
 
 RSpec/ExampleLength:
-  Max: 20
+  Max: 25
 
 RSpec/LetSetup:
   Enabled: false
