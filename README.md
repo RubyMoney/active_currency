@@ -33,15 +33,15 @@ ActiveCurrency::AddRates.call(currencies: %w[EUR USD])
 You can then exchange money by using the Money gem helpers:
 
 ```rb
-10.to_money('EUR').exchange_to('USD').cents
+10.to_money("EUR").exchange_to("USD").cents
 ```
 
 If you need to look up the previous currency rates:
 
 ```rb
-ActiveCurrency::Rate.value_for('EUR', 'USD', 1.month.ago)
+ActiveCurrency::Rate.value_for("EUR", "USD", 1.month.ago)
 # => 1.151
-ActiveCurrency::Rate.where(from: 'EUR', to: 'USD').pluck(:value)
+ActiveCurrency::Rate.where(from: "EUR", to: "USD").pluck(:value)
 # => [1.162, 1.162, 1.161, 1.161, 1.163, …]
 ```
 
@@ -88,7 +88,7 @@ add the following to your application’s initializers:
 ```rb
 ActiveCurrency.configure do |config|
   config.remote_bank = :open_exchange_rates
-  config.open_exchange_rates_app_id = '…'
+  config.open_exchange_rates_app_id = "…"
 end
 ```
 
@@ -101,16 +101,21 @@ You can provide any Money-compatible bank when calling
 ActiveCurrency::AddRates.call(…, bank: …)
 ```
 
-## Apply a multiplier
-
-If you want to increase or decrease the currency rates by a given multiplier,
-you can do so by setting the `multiplier` option:
+## Configuration
 
 ```rb
 ActiveCurrency.configure do |config|
-  config.multiplier = {
-    ["EUR", "USD"] => 1.01,
-  }
+  # Use the money-open-exchange-rates bank instead.
+  # config.remote_bank = :open_exchange_rates
+  # config.open_exchange_rates_app_id = "…"
+
+  # Disable `Rails.cache`.
+  # config.cache_enabled = false
+
+  # Increase or decrease the currency rates by a given multiplier.
+  # config.multiplier = {
+  #   ["EUR", "USD"] => 1.01,
+  # }
 end
 ```
 
@@ -124,8 +129,8 @@ For that, you can use a fake rate store in your `rails_helper.rb`:
 ```rb
 MoneyRails.configure do |config|
   rate_store = Money::RatesStore::Memory.new.tap do |store|
-    store.add_rate('USD', 'EUR', 1.5)
-    store.add_rate('EUR', 'USD', 0.67)
+    store.add_rate("USD", "EUR", 1.5)
+    store.add_rate("EUR", "USD", 0.67)
   end
   config.default_bank = Money::Bank::VariableExchange.new(rate_store)
 end
