@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning].
 Changes:
 - Drop support for Rails < 7.0.
 
+Fix:
+- Make `RateStore` marshalable so a bank using it can be marshaled.
+
 ## v1.4.1
 
 Fix:
